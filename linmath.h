@@ -39,6 +39,12 @@ static inline void vec##n##_norm(vec##n r, vec##n const v) \
 { \
 	float k = 1.0 / vec##n##_len(v); \
 	vec##n##_scale(r, v, k); \
+} \
+static inline void vec##n##_sgn(vec##n r, vec##n const v) \
+{ \
+    int i; \
+    for(i=0; i<n; ++i) \
+        r[i] = v[i] > 0 ? 1 : -1; \
 }
 
 LINMATH_H_DEFINE_VEC(2)
@@ -149,7 +155,7 @@ static inline void mat4x4_mul(mat4x4 M, mat4x4 a, mat4x4 b)
 	}
 	mat4x4_dup(M, temp);
 }
-static inline void mat4x4_mul_vec4(vec4 r, mat4x4 M, vec4 v)
+static inline void mat4x4_mul_vec4(vec4 r, mat4x4 M, vec4 const v)
 {
 	int i, j;
 	for(j=0; j<4; ++j) {
@@ -157,6 +163,14 @@ static inline void mat4x4_mul_vec4(vec4 r, mat4x4 M, vec4 v)
 		for(i=0; i<4; ++i)
 			r[j] += M[i][j] * v[i];
 	}
+}
+static inline void mat4x4_mul_vec3(vec3 r, mat4x4 M, vec3 const v)
+{
+    vec4 t = { v[0], v[1], v[2], 1.0f };
+    vec4 r4;
+    mat4x4_mul_vec4(r4, M, t);
+    vec4_scale(r4, r4, 1/r4[3]);
+    r = r4;
 }
 static inline void mat4x4_translate(mat4x4 T, float x, float y, float z)
 {
